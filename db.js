@@ -47,7 +47,21 @@ Thing.belongsTo(Person);
 Place.hasMany(Person);
 Person.hasMany(Thing);
 
+
+const syncAndSeed = async() => {
+  await conn.sync({ force: true });
+  const [Person1, Person2, Person3] = await Promise.all([
+    Person.create({name: 'Rob'}),
+    Person.create({name: 'Lourdes'}),
+    Person.create({name: 'Moe'})
+  ]);
+
+
+};
+
+
 module.exports = {
+  syncAndSeed,
   models: {
     Person,
     Place,
