@@ -1,0 +1,143 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.1/react-router-dom.js'></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: verdana;
+}
+nav {
+  background-color: tomato;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+nav a {
+  color: white;
+  border: solid 1px white;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+nav a.active {
+  color: tomato;
+  background-color: white;
+}
+
+.container {
+  margin: 1rem;
+}
+
+@media (max-width: 600px){
+  body {
+    font-size: 2.0rem;
+  }
+  nav {
+    flex-direction: column;
+  }
+  nav a {
+    margin-bottom: 1rem;
+  }
+}
+</style>
+
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  </head>
+  <body>
+    <div id='root'></div>
+    <script type='text/babel'>
+      const { HashRouter, Link, NavLink, Route, Switch } = ReactRouterDOM;
+
+      const People = ({ people })=> {
+        return (
+          <ul>
+            {
+              people.map(person => <li key={ person.id}>{ person.name}</li>)
+            }
+          </ul>
+        );
+      };
+
+      const Places = ({ places })=> {
+        return (
+          <ul>
+            {
+              places.map(place => <li key={ place.id}>{ place.name}</li>)
+            }
+          </ul>
+        );
+      };
+
+      const Things = ({ things })=> {
+        return (
+          <ul>
+            {
+              things.map(thing => <li key={ thing.id}>{ thing.name}</li>)
+            }
+          </ul>
+        );
+      };
+
+
+      const Nav = ({ people, places, things })=> {
+        const links = [
+          { text: 'People', to: '/people', count: people.length},
+          { text: 'Places', to: '/places', count: places.length },
+          { text: 'Things', to: '/things', count: things.length }
+        ];
+        return (
+          <nav>
+            {
+              links.map( link=> <NavLink key={ link.text } to={ link.to }>{ link.text }</NavLink>)
+            }
+          </nav>
+        );
+      };
+
+      class App extends React.Component{
+        constructor(){
+          super();
+          this.state = {
+            people: [],
+            places: [],
+            things: []
+          };
+        }
+        async componentDidMount(){
+          const urls = [
+            '/api/people',
+            '/api/places',
+            '/api/things',
+          ];
+          const [people, places, things] = await Promise.all(
+            urls.map( url => axios.get(url).then( response => response.data))
+          );
+          this.setState({ people, places, things });
+        }
+        render(){
+          return (
+            <HashRouter>
+              <Route render={()=> <Nav { ...this.state }/>} />
+              <div className='container'>
+                <h1>Acme Nouns</h1>
+                <Route path='/people' render={()=> <People {...this.state}/>} />
+                <Route path='/places' render={()=> <Places {...this.state}/>} />
+                <Route path='/things' render={()=> <Things {...this.state}/>} />
+              </div>
+            </HashRouter>
+          );
+        }
+      }
+
+      ReactDOM.render(<App />, document.querySelector('#root'));
+    </script>
+
+  </body>
+</html>
+
