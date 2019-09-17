@@ -50,10 +50,23 @@ Person.hasMany(Thing);
 
 const syncAndSeed = async() => {
   await conn.sync({ force: true });
+
+  const [Place1, Place2, Place3] = await Promise.all([
+    Place.create({name: 'Bologna' }),
+    Place.create({name: 'Pacific Grove'}),
+    Place.create({name: 'NYC'}),
+  ]);
+
   const [Person1, Person2, Person3] = await Promise.all([
-    Person.create({name: 'Rob'}),
-    Person.create({name: 'Lourdes'}),
-    Person.create({name: 'Moe'})
+    Person.create({name: 'Rob', placeId: Place1.id}),
+    Person.create({name: 'Lourdes', placeId: Place2.id}),
+    Person.create({name: 'Moe', placeId: Place3.id})
+  ]);
+
+  const [Thing1, Thing2, Thing3] = await Promise.all([
+    Thing.create({name: 'laptop', personId: Person1.id}),
+    Thing.create({name: 'coffee cup', personId: Person2.id}),
+    Thing.create({name: 'hat', personId: Person3.id}),
   ]);
 
 
